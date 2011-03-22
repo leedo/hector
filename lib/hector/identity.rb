@@ -7,8 +7,9 @@ module Hector
 
       def auth_required?(request)
         if addr_whitelist
-          addr_whitelist.none? {|addr| addr == request.remote_addr}
+          return addr_whitelist.none? {|addr| addr == request.remote_addr}
         end
+        return true
       end
 
       def authenticate(username, password)
