@@ -1,10 +1,11 @@
 module Hector
   class Request
-    attr_reader  :line, :command, :args, :text
+    attr_reader  :line, :command, :args, :text, :remote_addr
     alias_method :to_s, :line
 
-    def initialize(line)
+    def initialize(line, remote_addr)
       @line = line
+      @remote_addr = remote_addr
       parse
     end
 

@@ -9,7 +9,7 @@ module Hector
     end
 
     def receive_line(line)
-      @request = Request.new(line)
+      @request = Request.new(line, address)
       log(:debug, "received", @request.to_s.inspect) unless @request.sensitive?
 
       if session

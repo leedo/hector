@@ -3,7 +3,13 @@ module Hector
     attr_accessor :username
 
     class << self
-      attr_accessor :adapter
+      attr_accessor :adapter, :addr_whitelist
+
+      def auth_required?(request)
+        if addr_whitelist
+          addr_whitelist.none? {|addr| addr == request.remote_addr}
+        end
+      end
 
       def authenticate(username, password)
         adapter.authenticate(username, password) do |authenticated|
