@@ -32,6 +32,42 @@ module Hector
         assert_not_closed c
       end
     end
+    
+    test :"sending a concatenated username and password with PASS should create a session" do
+      connection.tap do |c|
+        pass! c, "sam:secret"
+        user! c
+        nick! c
+        
+        assert_not_nil c.session
+        assert_welcomed c
+        assert_not_closed c
+      end
+    end
+    
+    test :"sending a username and password with PASS should create a session even if USER credentials are incorrect" do
+      connection.tap do |c|
+        pass! c, "sam:secret"
+        user! c, "invalid"
+        nick! c
+        
+        assert_not_nil c.session
+        assert_welcomed c
+        assert_not_closed c
+      end
+    end
+    
+    test :"sending an invalid concatenated username and password with PASS should respond with a 464" do
+      connection.tap do |c|
+        pass! c, "sam:invalid"
+        user! c
+        nick! c
+        
+        assert_nil c.session
+        assert_invalid_password c
+        assert_closed c
+      end
+    end
 
     test :"sending an unknown command before registration should result in immediate disconnection" do
       connection.tap do |c|
@@ -39,6 +75,18 @@ module Hector
         assert_not_closed c
         c.receive_line "FOO"
         assert_closed c
+      end
+    end
+    
+    test :"sending CAP before registration should be ignored" do
+      connection.tap do |c|
+        c.receive_line "CAP LS"
+        assert_not_closed c
+        
+        pass! c
+        user! c
+        nick! c
+        assert_welcomed c
       end
     end
 
@@ -84,7 +132,7 @@ module Hector
     test :"sending the ping command should respond with a pong" do
       authenticated_connection.tap do |c|
         c.receive_line "PING 12345"
-        assert_sent_to c, ":hector.irc PONG :12345"
+        assert_sent_to c, ":hector.irc PONG hector.irc :12345"
       end
     end
 
@@ -144,11 +192,10 @@ module Hector
     test :"away messages can be changed" do
       authenticated_connection("sam").tap do |c|
         c.receive_line "AWAY :bai guys"
-        assert_sent_to c, "306 :You have been marked as being away"
+        assert_sent_to c, ":hector.irc 306 :You have been marked as being away"
         c.receive_line "AWAY"
-        assert_sent_to c, "305 :You are no longer marked as being away"
+        assert_sent_to c, ":hector.irc 305 :You are no longer marked as being away"
       end
     end
   end
-
 end

@@ -32,6 +32,7 @@ Hector supports a limited subset of IRC commands.
 - `WHOIS` -- Shows information about a nickname, including how long it has been connected.
 - `PART` -- Leaves a channel.
 - `AWAY` -- Marks or unmarks you as being away.
+- `INVITE` -- Invites another user to a channel.
 - `PING` -- (Your client uses this command to measure the speed of its connection to the server.)
 - `QUIT` -- Disconnects from the server.
 
@@ -56,15 +57,23 @@ Start the Hector daemon:
     I, [2010-03-07 22:00:00#21466]  INFO -- : Hector running on 0.0.0.0:6767
     I, [2010-03-07 22:00:00#21466]  INFO -- : Secure Hector running on 0.0.0.0:6868
 
-You can connect Hector to an existing authentication scheme by modifying `init.rb` in your server's directory:
+By default, the server will listen at 0.0.0.0 (any IP address) on port 6767 for unencrypted clients and on 6868 for encrypted.  These settings can be configured by modifying `init.rb` in your server's directory with any combination of the following:
+
+    Hector.server_address = "111.222.333.444"
+    Hector.port = 9000
+    Hector.ssl_port = 9001
+
+You can connect Hector to an existing authentication scheme by again modifying `init.rb` in your server's directory:
 
     Hector::Identity.adapter = MyIdentityAdapter.new(...)
 
 where `MyIdentityAdapter` is a class whose instances respond to `authenticate(username, password, &block)` and `normalize(username)`. See `lib/hector/yaml_identity_adapter.rb` for an example.
 
+If you require [em-synchrony](https://github.com/igrigorik/em-synchrony), Hector will start EventMachine's run loop using `EventMachine.synchrony`. Simply `require "em-synchrony"` somewhere in `init.rb`. (In an identity adapter, for example.)
+
 ### License <small>(MIT)</small>
 
-<small>Copyright © 2011 Sam Stephenson.</small>
+<small>Copyright © 2012 Sam Stephenson.</small>
 
 <small>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</small>
 

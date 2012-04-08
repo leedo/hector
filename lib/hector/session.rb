@@ -18,6 +18,7 @@ module Hector
     include Commands::Who
     include Commands::Whois
     include Commands::Away
+    include Commands::Invite
 
     attr_reader :nickname, :request, :response, :away_message
 
@@ -60,7 +61,7 @@ module Hector
 
       def normalize(nickname)
         nickname.force_encoding("UTF-8") if nickname.respond_to?(:force_encoding)
-        if nickname =~ /^[\p{L}\p{M}\p{N}\p{So}\p{Co}\w][\p{L}\p{M}\p{N}\p{So}\p{Co}\p{P}\w-]{0,15}$/u
+        if nickname =~ /^[\p{L}\p{M}\p{N}\p{So}\p{Co}\w][\p{L}\p{M}\p{N}\p{So}\p{Co}\p{P}\w\|\-]{0,15}$/u
           nickname.downcase
         else
           raise ErroneousNickname, nickname
@@ -68,6 +69,7 @@ module Hector
       end
 
       def register(session)
+        yield session if block_given?
         sessions[normalize(session.nickname)] = session
         session
       end
